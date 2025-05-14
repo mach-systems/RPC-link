@@ -5,9 +5,9 @@
  *      Author: karel
  */
 
-#include "linkLayer.hpp"
-#include <ifaddrs.h>        /* To get interface-specific addresses */
 #include <arpa/inet.h>
+#include <ifaddrs.h>        /* To get interface-specific addresses */
+#include "network.hpp"
 
 
 /**
@@ -50,17 +50,17 @@ std::string getIpAddressGetifaddrs(const std::string& interfaceName)
     return ret;
 }
 
-std::string parseEndpoint(const RelayConfig& relayConfig)
+std::string parseEndpoint(const NetConfig& netConfig)
 {
-    std::string ipParam = relayConfig.IpAddress;
+    std::string ipParam = netConfig.IpAddress;
     std::string ipFromName = "";
-    if ("" != relayConfig.EthName)
+    if ("" != netConfig.EthName)
     {
-        ipFromName = getIpAddressGetifaddrs(relayConfig.EthName);
+        ipFromName = getIpAddressGetifaddrs(netConfig.EthName);
         if ("" != ipFromName)
         {
             ipParam = ipFromName;
         }
     }
-    return ipParam + ":" + relayConfig.Port;
+    return ipParam + ":" + netConfig.Port;
 }

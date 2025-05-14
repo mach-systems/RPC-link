@@ -9,6 +9,47 @@
  *
  * Module led.cpp contains example implementation of a timer, that could be used e.g. for controlling device LEDs.
  *
+ *
+ * V2X <-> RPC link layer architecture
+ * ===================================
+ * - note that LinkLayerImpl is owned by main()
+ *
+ *  +++++++++++++++++++++++++++++++++++++++++
+ *  +               NET                     +
+ *  +++++++++++++++++++++++++++++++++++++++++
+ *  V2X RX                       V2X TX
+ *       ^                         |
+ *       |                     transmitData()
+ *       |   /-----------------\   |
+ *       |   |  LinkLayerImpl  |   |
+ *       |   \-----------------/   |
+ *       |           |             |
+ *    send()         |             |
+ *    request()      |             V
+ *  ------------ OWNS REF.----------------
+ *      ^            |        PacketSend()
+ *      |           \|/            |
+ *      |            V             |
+ *      |      /-----------\       |
+ *      |      |   Relay   |       |
+ *      |      \-----------/       |
+ *  m_NetTransmit()  |             |
+ *  PacketReceived() |             V
+ *  ------------ OWNS REF. ------------------
+ *      ^            |         request()
+ *      |            |             |
+ *      |           \|/            |
+ *      |            V             |
+ *      |     /---------------\    |
+ *      |     | AutotalksLink |    |
+ *      |     \---------------/    |
+ *  m_PacketRx()                   |
+ *  data_received()                V
+ * +++++++++++++++++++++++++++++++++++++++++++
+ * +               V2X                       +
+ * +++++++++++++++++++++++++++++++++++++++++++
+ *
+ *
  * Author: MACH SYSTEMS s.r.o.
  * Created: 2025-03-04
  */
@@ -20,9 +61,9 @@
 #include <kj/async-unix.h>
 #include "autotalks.hpp"
 #include "led.hpp"
-#include "linkLayer.hpp"
+#include "linkLayerImpl.hpp"
+#include "network.hpp"
 #include "relay.hpp"
-#include "rpcServer.hpp"
 
 
 const char* const help =
@@ -40,7 +81,7 @@ int main(int argc, char** argv)
 {
     bool print = false;
 
-    RelayConfig relayConfig = {.IpAddress = "localhost", .Port = PortDefault, .EthName = ""};
+    NetConfig netConfig = {.IpAddress = "localhost", .Port = PortDefault, .EthName = ""};
 
     for (int i = 1; i < argc; i++)
     {
@@ -48,11 +89,11 @@ int main(int argc, char** argv)
 
         if ((param.length() >= 3 && strncmp(param.c_str(), "ip=", 3) == 0))
         {
-            relayConfig.IpAddress = param.erase(0, 3);
+            netConfig.IpAddress = param.erase(0, 3);
         }
         else if ((param.length() >= 5 && strncmp(param.c_str(), "port=", 5) == 0))
         {
-            relayConfig.Port = param.erase(0, 5);
+            netConfig.Port = param.erase(0, 5);
         }
         else if ( (param.length() >= 6 && strncmp(param.c_str(), "--help", 6) == 0)
                    || (param.length() >= 2 && strncmp(param.c_str(), "-h", 2) == 0)
@@ -70,7 +111,7 @@ int main(int argc, char** argv)
         }
         else if ((param.length() >= 4 && strncmp(param.c_str(), "eth=", 4) == 0))
         {
-            relayConfig.EthName = param.erase(0, 4);
+            netConfig.EthName = param.erase(0, 4);
         }
         else
         {
@@ -99,7 +140,7 @@ int main(int argc, char** argv)
     linkLayer.reset(new AutotalksLink(print, led));
 
     Relay relay(*linkLayer, print);
-    std::string address = parseEndpoint(relayConfig);
+    std::string address = parseEndpoint(netConfig);
 
     auto& ioprovider = *asyncio.provider;
     auto& network = ioprovider.getNetwork();

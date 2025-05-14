@@ -5,17 +5,17 @@
  *      Author: karel
  */
 
-#ifndef RPCSERVER_HPP_
-#define RPCSERVER_HPP_
+#ifndef LINKLAYERIMPL_HPP_
+#define LINKLAYERIMPL_HPP_
 
 #include <atomic>
 #include <kj/debug.h>
-#include <kj/async-io.h>
 #include <kj/async.h>
+#include <kj/async-io.h>
 #include "vanetza.capnp.h"
 
-#include "relay.hpp"
 #include "defs.hpp"
+#include "relay.hpp"
 
 #define SERVER_ID       0x55AA55AA55AA55AAULL
 #define SERVER_VERSION  0x00000001UL
@@ -112,4 +112,4 @@ class LinkLayerImpl final : public vanetza::rpc::LinkLayer::Server
 
 
 
-#endif /* RPCSERVER_HPP_ */
+#endif /* LINKLAYERIMPL_HPP_ */

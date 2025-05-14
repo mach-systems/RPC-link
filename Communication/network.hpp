@@ -5,8 +5,8 @@
  *      Author: karel
  */
 
-#ifndef LINKLAYER_HPP_
-#define LINKLAYER_HPP_
+#ifndef NETWORK_HPP_
+#define NETWORK_HPP_
 
 #include <string>
 
@@ -19,9 +19,9 @@
 const std::string PortDefault("8947");
 
 /**
- * Link layer connection configuration
+ * Link layer network connection configuration
  */
-struct RelayConfig
+struct NetConfig
 {
     std::string IpAddress;      /* IP address for reception */
     std::string Port;           /* Port to use both for reception */
@@ -35,8 +35,8 @@ struct RelayConfig
  * @param  relayConfig Configuration structure
  * @retval std::string with pair ip:port (not checked)
  */
-std::string parseEndpoint(const RelayConfig& relayConfig);
+std::string parseEndpoint(const NetConfig& relayConfig);
 
 
 
-#endif /* LINKLAYER_HPP_ */
+#endif /* NETWORK_HPP_ */

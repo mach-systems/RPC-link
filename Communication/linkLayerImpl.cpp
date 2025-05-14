@@ -9,7 +9,7 @@
 #include <iostream>
 
 #include "autotalks.hpp"    // SetAddress()
-#include "rpcServer.hpp"
+#include "linkLayerImpl.hpp"
 
 
 LinkLayerImpl::LinkLayerImpl(Relay& relay)
@@ -68,8 +68,8 @@ kj::Promise<void> LinkLayerImpl::transmitData(TransmitDataContext context)
     }
     else if (vanetza::rpc::LinkLayer::TxParameters::CV2X == params.which())
     {
-        v2xFrame.Cv2xParameters.Power = params.getWlan().getPower();
-        v2xFrame.Cv2xParameters.Priority = params.getWlan().getPriority();
+        v2xFrame.Cv2xParameters.Power = params.getCv2x().getPower();
+        v2xFrame.Cv2xParameters.Priority = params.getCv2x().getPriority();
         (void) printf("power: %d, priority: %d", v2xFrame.Cv2xParameters.Power,
                                                  v2xFrame.Cv2xParameters.Priority);
     }
