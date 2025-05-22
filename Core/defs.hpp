@@ -28,12 +28,6 @@ struct V2xFrame
     std::vector<uint8_t> SrcAddress;    /*< Source address */
     std::vector<uint8_t> DstAddress;    /*< Destination address */
     std::vector<uint8_t> Data;          /*< Frame data */
-    enum V2XPacketType
-    {
-        Unspecified,
-        Wlan,
-        CV2X
-    };
     /**
      * Parameters for WLAN devices in OCB mode (IEEE 802.11 p and bd)
      */
